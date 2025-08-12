@@ -27,9 +27,8 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     phone_number = Column(String)
-    lang = Column(String, default="ru")
+    lang = Column(String, default="en")
     role_id = Column(Integer, ForeignKey("roles.id"), default=2)
     is_blocked = Column(Boolean, default=False)
 
     role = relationship("Role", backref="users", lazy="joined")
-    items = relationship("Item", back_populates="owner")

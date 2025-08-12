@@ -3,6 +3,7 @@ from typing import Any
 
 import gspread
 import pandas as pd
+from dotenv import find_dotenv, load_dotenv
 from oauth2client.service_account import ServiceAccountCredentials
 
 from .utils import create_keyfile_dict
@@ -19,6 +20,9 @@ class GoogleSheetsClient:
 
     def __init__(self, share_emails: list[str] = None):
         """Initialize the Google Sheets client"""
+        # Load and get environment variables
+        load_dotenv(find_dotenv(usecwd=True))
+
         self.keyfile_dict = create_keyfile_dict()
         self.scope = [
             "https://spreadsheets.google.com/feeds",

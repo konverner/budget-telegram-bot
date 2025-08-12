@@ -1,4 +1,4 @@
-## Telegram Bot Template
+## Budget Telegram Bot
 
 This is a template for creating a Telegram bot using Python. It uses the `pyTelegramBotAPI` library for interaction with the Telegram Bot API and SQLAlchemy for database interactions. The bot logs messages, saves user details, and can be deployed using Docker.
 
@@ -38,18 +38,6 @@ Admin features allow performing operations on users. The admin menu is available
 - Grant admin rights to other users, block users from using the bot: [src/app/users](src/app/users)
 
 - Export database tables of the bot: [src/app/admin](src/app/admin)
-
-### Plugin Features
-
-Plugins are features based on external services and can be plugged in and out easily without breaking the bot. We use environmnet variable "USE_PLUGINS" to control it.
-
-- OpenAI: It allows consuming OpenAI services like GPT and DALL-E
-
-- Google Drive: It allows uploading and downloading files on Google Drive.
-
-- Google Sheets: It allows creating sheets and writing records on Google Sheets.
-
-- yt-dlp: It allows downloading videos from YouTube and other services supported by yt-dlp.
 
 ## Launch
 

@@ -4,19 +4,14 @@ import telebot
 from dotenv import find_dotenv, load_dotenv
 from telebot.states.sync.middleware import StateMiddleware
 
-from .admin.handlers import register_handlers as admin_handlers
 from .auth.data import init_roles_table, init_superuser
+from .budget.handlers import register_handlers as budget_handlers
 from .config import settings
 from .database.core import SessionLocal, create_tables, drop_tables
-from .items.data import init_item_categories_table
-from .items.handlers import register_handlers as items_handlers
 from .language.handler import register_handlers as language_handlers
-from .menu.handlers import register_handlers as menu_handlers
 from .middleware.antiflood import AntifloodMiddleware
 from .middleware.database import DatabaseMiddleware
 from .middleware.user import UserCallbackMiddleware, UserMessageMiddleware
-from .public_message.handlers import register_handlers as public_message_handlers
-from .users.handlers import register_handlers as users_handlers
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -42,8 +37,6 @@ def start_bot():
         _setup_middlewares(bot)
 
         _register_core_handlers(bot)
-        if settings.USE_PLUGINS:
-            _register_plugins_handlers(bot)
 
         bot.add_custom_filter(telebot.custom_filters.StateFilter(bot))
 
@@ -84,30 +77,12 @@ def _setup_middlewares(bot):
 def _register_core_handlers(bot):
     """Register all bot handlers."""
     handlers = [
-        admin_handlers,
-        menu_handlers,
-        public_message_handlers,
-        users_handlers,
-        items_handlers,
-        language_handlers
+        language_handlers,
+        budget_handlers
     ]
     for handler in handlers:
         handler(bot)
 
-def _register_plugins_handlers(bot):
-    """Register all plugin handlers."""
-
-    from .chatgpt.handlers import register_handlers as chatgpt_handlers
-    from .plugins.google_sheets.handlers import register_handlers as google_sheets_handlers
-    from .plugins.yt_dlp.handlers import register_handlers as ydl_handlers
-
-    handlers = [
-        google_sheets_handlers,
-        ydl_handlers,
-        chatgpt_handlers,
-    ]
-    for handler in handlers:
-        handler(bot)
 
 def _start_polling_loop(bot):
     """Start the main bot polling loop with error handling."""
@@ -149,8 +124,6 @@ def init_db():
     if settings.SUPERUSER_USER_ID:
         init_superuser(db_session, settings.SUPERUSER_USER_ID, settings.SUPERUSER_USERNAME)
         logger.info(f"Superuser {settings.SUPERUSER_USERNAME} added successfully.")
-
-    init_item_categories_table(db_session)
 
     db_session.close()
 

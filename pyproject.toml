@@ -2,10 +2,10 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[project]  # project’s basic metadata, such as the dependencies, your name, etc.
+[project]
 name = "app"
 version = "1.2.0"  #
-description = "This package is a sample"
+description = "Telegram bot for budgeting via Google Sheets"
 readme = "README.md"
 authors = [
     {name = "Konstantin Verner"},
@@ -20,24 +20,17 @@ classifiers = [  #
 ]
 
 dependencies = [
-    "apscheduler",
     "pyTelegramBotAPI==4.25.0",
     "omegaconf==2.3.0",
     "sqlalchemy==2.0.36",
-    "markitdown",
-    "yt-dlp==2025.3.31",
-    "ffmpeg",
-    "langchain_fireworks",
-    "langchain_openai",
-    "langchain_core",
-    "Pillow",
-    "pydantic_settings",
     "pandas",
+    "pydantic",
+    "pydantic_settings",
     "gspread",
     "psycopg2-binary",
     "python-dotenv",
     "pytz",
-    "pydrive2",
+    "oauth2client",
     "types-pytz"
 ]
 

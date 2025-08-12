@@ -1,0 +1,52 @@
+app:
+  sheet_name: "Budget"
+  categories_worksheet: "categories"
+  transactions_worksheet: "transactions"
+  share_emails:
+    - "konst.verner@gmail.com"
+strings:
+  en:
+    # Transaction flow
+    select_category: "Select a category:"
+    select_subcategory: "Select a subcategory:"
+    enter_amount: "Enter the amount:"
+    enter_comment: "Enter a comment (optional):"
+    transaction_saved: |
+      Transaction saved successfully!
+      {category}.{subcategory} for {amount}
+      {comment}
+
+    transaction_error: "Error saving transaction. Please try again."
+    transaction_cancelled: "Transaction cancelled."
+    invalid_amount: "Invalid amount. Please enter a valid number."
+    skip: "Skip"
+    updating_categories: "Updating categories..."
+    categories_updated: "Categories updated successfully!"
+    categories_update_error: "Error updating categories. Please try again."
+    no_categories: "No categories available. Please add categories in your Google Sheet."
+    main_menu: "Main Menu"
+
+    cancel: "Cancel"
+  ru:
+    # Transaction flow
+    select_category: "Выберите категорию:"
+    select_subcategory: "Выберите подкатегорию:"
+    enter_amount: "Введите сумму:"
+    enter_comment: "Введите комментарий (необязательно):"
+    transaction_saved: |
+      Транзакция успешно сохранена
+      {category}.{subcategory} на сумму {amount}
+      {comment}
+    updating_categories: "Обновление категорий..."
+    transaction_error: "Ошибка при сохранении транзакции. Попробуйте еще раз."
+    transaction_cancelled: "Транзакция отменена."
+    invalid_amount: "Неверная сумма. Пожалуйста, введите правильное число."
+    skip: "Пропустить"
+    categories_updated: "Кэш категорий успешно обновлен!"
+    categories_update_error: "Ошибка при обновлении кэша категорий. Попробуйте еще раз."
+
+    no_categories: "Нет доступных категорий. Пожалуйста, добавьте категории в свою таблицу Google."
+
+    main_menu: "Главное меню"
+
+    cancel: "Отмена"
