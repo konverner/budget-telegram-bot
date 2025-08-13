@@ -196,7 +196,7 @@ class BudgetService:
 
         # Build full category name
         if subcategory_name:
-            full_category = "{category_name}.{subcategory_name}"
+            full_category = f"{category_name}.{subcategory_name}"
         else:
             full_category = category_name
 
