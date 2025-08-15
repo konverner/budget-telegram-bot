@@ -26,15 +26,18 @@ class BudgetService:
         self.sheet_name = config.app.sheet_name
         self.categories_worksheet = config.app.categories_worksheet
         self.transactions_worksheet = config.app.transactions_worksheet
-        self._categories_cache = None
+        self._categories_cache = self.get_categories()
 
     def _get_or_create_sheet(self):
         """Get or create the budget sheet"""
         try:
             return self.google_sheets.get_sheet(self.sheet_name)
         except Exception:
-            logger.info(f"Sheet {self.sheet_name} not found, creating new one")
-            return self.google_sheets.create_sheet(self.sheet_name)
+            #logger.info(f"Sheet {self.sheet_name} not found, creating new one")
+            # list all available sheets
+            available_sheets = self.google_sheets.get_all_sheet_names()
+            logger.info(f"Available sheets: {available_sheets}")
+            #return self.google_sheets.create_sheet(self.sheet_name)
 
     def _ensure_categories_worksheet(self, sheet):
         """Ensure categories worksheet exists with proper headers"""
@@ -185,7 +188,7 @@ class BudgetService:
                     return subcat['name']
         return ""
 
-    def save_transaction(self, user_id: str, transaction_data: dict) -> None:
+    def save_transaction(self, transaction_data: dict) -> None:
         """Save transaction to Google Sheets"""
         sheet = self._get_or_create_sheet()
         self._ensure_transactions_worksheet(sheet)
@@ -208,7 +211,6 @@ class BudgetService:
         ]
 
         self.google_sheets.add_row(sheet, self.transactions_worksheet, row_data)
-        logger.info("Transaction saved for user {user_id}: {row_data}")
 
     def refresh_categories_cache(self) -> bool:
         """Force refresh the categories cache from Google Sheets"""

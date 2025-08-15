@@ -57,7 +57,8 @@ def register_handlers(bot: TeleBot):
             logger.error(f"Error getting categories: {e}")
             bot.send_message(
                 message.chat.id,
-                strings[user.lang].transaction_error
+                strings[user.lang].transaction_error.format(error=str(e)),
+                parse_mode="Markdown"
             )
 
     @bot.callback_query_handler(state=TransactionState.category, func=lambda call: call.data.startswith("cat_"))
@@ -146,10 +147,11 @@ def register_handlers(bot: TeleBot):
 
             # Save transaction using the budget service
             try:
-                budget_service.save_transaction(str(user.id), transaction_data)
+                budget_service.save_transaction(transaction_data)
                 bot.send_message(
                     message.chat.id,
                     strings[user.lang].transaction_saved,
+                    parse_mode="Markdown"
                 )
                 logger.info(f"Transaction saved successfully for user {user.id}")
             except Exception as e:
@@ -173,7 +175,7 @@ def register_handlers(bot: TeleBot):
 
             # Save transaction using the budget service
             try:
-                budget_service.save_transaction(str(user.id), transaction_data)
+                budget_service.save_transaction(transaction_data)
                 category_name = budget_service.get_category_name(transaction_data['category_id'])
                 subcategory_name = budget_service.get_subcategory_name(transaction_data.get('subcategory_id', None))
                 bot.send_message(
@@ -184,6 +186,7 @@ def register_handlers(bot: TeleBot):
                         amount=transaction_data['amount'],
                         comment=transaction_data['comment'],
                     ),
+                    parse_mode="Markdown"
                 )
                 logger.info(f"Transaction saved successfully for user {user.id}")
             except Exception as e:

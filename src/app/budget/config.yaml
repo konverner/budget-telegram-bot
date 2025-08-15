@@ -13,10 +13,11 @@ strings:
     enter_comment: "Enter a comment (optional):"
     transaction_saved: |
       Transaction saved successfully!
-      {category}.{subcategory} for {amount}
+      `{category}.{subcategory}` for `{amount}`
       {comment}
 
-    transaction_error: "Error saving transaction. Please try again."
+    transaction_error: |
+      Error saving transaction: `{error}`
     transaction_cancelled: "Transaction cancelled."
     invalid_amount: "Invalid amount. Please enter a valid number."
     skip: "Skip"
@@ -35,7 +36,7 @@ strings:
     enter_comment: "Введите комментарий (необязательно):"
     transaction_saved: |
       Транзакция успешно сохранена
-      {category}.{subcategory} на сумму {amount}
+      `{category}.{subcategory}` на сумму `{amount}`
       {comment}
     updating_categories: "Обновление категорий..."
     transaction_error: "Ошибка при сохранении транзакции. Попробуйте еще раз."

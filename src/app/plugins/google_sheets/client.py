@@ -40,6 +40,10 @@ class GoogleSheetsClient:
             df[column] = df[column].astype(str)
         return df
 
+    def get_all_sheet_names(self) -> list[str]:
+        """ List all avaliable Sheets"""
+        return [sheet.title for sheet in self.client.openall()]
+
     def get_sheet(self, sheet_name: str) -> gspread.Spreadsheet:
         """Retrieve a Google Sheet by its name."""
         try:
