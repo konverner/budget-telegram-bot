@@ -92,7 +92,7 @@ def register_handlers(bot: TeleBot):
         except Exception as e:
             logger.error(f"Error getting subcategories for category {category_id}: {e}")
             bot.edit_message_text(
-                strings[user.lang].transaction_error,
+                strings[user.lang].transaction_error.format(error=str(e)),
                 call.message.chat.id,
                 call.message.message_id
             )
