@@ -26,18 +26,15 @@ class BudgetService:
         self.sheet_name = config.app.sheet_name
         self.categories_worksheet = config.app.categories_worksheet
         self.transactions_worksheet = config.app.transactions_worksheet
-        self._categories_cache = self.get_categories()
+        self._categories_cache = None
 
     def _get_or_create_sheet(self):
         """Get or create the budget sheet"""
         try:
             return self.google_sheets.get_sheet(self.sheet_name)
         except Exception:
-            #logger.info(f"Sheet {self.sheet_name} not found, creating new one")
-            # list all available sheets
-            available_sheets = self.google_sheets.get_all_sheet_names()
-            logger.info(f"Available sheets: {available_sheets}")
-            #return self.google_sheets.create_sheet(self.sheet_name)
+            logger.info(f"Sheet {self.sheet_name} not found, creating new one")
+            return self.google_sheets.create_sheet(self.sheet_name)
 
     def _ensure_categories_worksheet(self, sheet):
         """Ensure categories worksheet exists with proper headers"""
