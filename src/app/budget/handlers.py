@@ -150,7 +150,12 @@ def register_handlers(bot: TeleBot):
                 budget_service.save_transaction(transaction_data)
                 bot.send_message(
                     message.chat.id,
-                    strings[user.lang].transaction_saved,
+                    strings[user.lang].transaction_saved.format(
+                        category=budget_service.get_category_name(transaction_data['category_id']),
+                        subcategory=budget_service.get_subcategory_name(transaction_data.get('subcategory_id', None)),
+                        amount=transaction_data['amount'],
+                        comment=transaction_data['comment'],
+                    ),
                     parse_mode="Markdown"
                 )
                 logger.info(f"Transaction saved successfully for user {user.id}")
