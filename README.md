@@ -1,66 +1,275 @@
-## Budget Telegram Bot
+# Budget Telegram Bot
 
-This is a Telegram Bot used as a interface for budgeting with Google Sheets.
+This is a Telegram Bot that provides a convenient interface for budgeting with Google Sheets.
 
-The Google Sheets are often used for budgeting purposes ([1](https://www.reddit.com/r/personalfinance/comments/c4mzfe/i_made_a_google_sheet_to_replace_quicken/)) but the problem is to enter transactions is not always comfortable, espacially via mobile on the go. This bot allows you to enter transactions via Telegram messanger.
+While Google Sheets are commonly used for budgeting purposes ([reference](https://www.reddit.com/r/personalfinance/comments/c4mzfe/i_made_a_google_sheet_to_replace_quicken/)), entering transactions can be uncomfortable, especially on mobile devices. This bot solves that problem by allowing you to easily record transactions via Telegram messages.
 
-## Launch
+## Features
 
-### Google Sheets
+- 📊 **Google Sheets Integration**: Automatically sync your budget data with Google Sheets
+- 💰 **Transaction Management**: Add, view, and categorize expenses and income
+- 🔒 **Secure Authentication**: Uses Google Cloud Service Account for secure API access
+- 🚀 **Multiple Deployment Options**: Run directly or using Docker
+- 📱 **Mobile-Friendly**: Designed for easy use on mobile devices via Telegram
+- 🛡️ **Anti-spam Protection**: Built-in rate limiting to prevent abuse
+- 🗄️ **Flexible Database**: Supports both SQLite (default) and PostgreSQL
 
-By-default the bot is looking for a sheet named "budget" with two worksheets "transactions" and "categories". You can see example here:
+## Setup and Installation
 
-To allow communication between google sheets you need to set a service account on Goolge Cloud:
+### Prerequisites
 
-#### 1. Create a Google Cloud project
+- Python 3.9 or higher
+- A Telegram account
+- Google Cloud Platform account
+- Google Sheets account
 
-To access Google products via API, you must have a developer project on Google Workspace
+### Step 1: Clone the Repository
 
-https://developers.google.com/workspace/guides/create-project
+```bash
+git clone https://github.com/konverner/budget-telegram-bot.git
+cd budget-telegram-bot
+```
 
-#### 2. Create a service account
+### Step 2: Set up Google Sheets and Google Cloud
 
-You cannot use your personal account for API use, you need to create a service account specifically for the bot:
+#### 2.1. Create Google Sheets
 
-<img width="666" height="569" alt="Screenshot From 2025-08-15 22-00-49" src="https://github.com/user-attachments/assets/2900879e-5128-4037-8fc4-78b2a95b2191" />
-  
-#### 3. Enable APIs for the service account
+1. Create a new Google Sheet and name it "budget"
+2. Create two worksheets within the sheet:
+   - "transactions" - for recording income and expenses
+   - "categories" - for organizing transaction categories
+3. **Important**: Share the sheet with your service account email (you'll get this in step 2.4)
 
-For the created service account, we need to enable Google Sheet and Google Drive APIs: https://developers.google.com/workspace/guides/enable-apis
+Example sheet structure:
+- **transactions worksheet**: Date | Amount | Category | Description
+- **categories worksheet**: Category | Type (income/expense)
 
-#### 4. Create credentials
+#### 2.2. Create a Google Cloud Project
 
-For authorization and authofication of service account, you must create credentials and save them as a JSON file.
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Follow the guide: https://developers.google.com/workspace/guides/create-project
 
-<img width="762" height="649" alt="Screenshot From 2025-08-15 22-01-37" src="https://github.com/user-attachments/assets/9192f484-4121-4411-a142-ccadee6ef533" />
+#### 2.3. Create a Service Account
 
+1. In Google Cloud Console, go to **IAM & Admin > Service Accounts**
+2. Click **"Create Service Account"**
+3. Enter a name (e.g., "telegram-bot") and description
+4. Click **"Create and Continue"**
+5. Skip the optional steps and click **"Done"**
 
-### Telegram Bot
+#### 2.4. Enable Required APIs
 
-#### Create bot account
+Enable the following APIs for your project:
+1. **Google Sheets API**: https://console.cloud.google.com/apis/api/sheets.googleapis.com
+2. **Google Drive API**: https://console.cloud.google.com/apis/api/drive.googleapis.com
 
-You need to create a bot account and obtain a token via BotFather: https://core.telegram.org/bots/tutorial#obtain-your-bot-token
+Or follow this guide: https://developers.google.com/workspace/guides/enable-apis
 
-#### Setup
+#### 2.5. Create Service Account Credentials
 
-1. Clone this repository.
-2. Enter values in `.env.example` and rename it to `.env`.
+1. Go to **IAM & Admin > Service Accounts**
+2. Click on your service account
+3. Go to the **"Keys"** tab
+4. Click **"Add Key" > "Create new key"**
+5. Select **"JSON"** and click **"Create"**
+6. Save the downloaded JSON file securely
+7. **Important**: Share your Google Sheet with the `client_email` from this JSON file
 
-#### Run 
+### Step 3: Set up Telegram Bot
+
+#### 3.1. Create a Telegram Bot
+
+1. Open Telegram and search for [@BotFather](https://t.me/BotFather)
+2. Send `/newbot` command
+3. Follow the instructions to create your bot
+4. Save the bot token you receive
+
+#### 3.2. Get Your User ID
+
+1. Message [@userinfobot](https://t.me/userinfobot) on Telegram
+2. Save your user ID (you'll need this as SUPERUSER_USER_ID)
+
+### Step 4: Configure Environment Variables
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit the `.env` file and fill in the required values:
+
+   **Required Telegram Settings:**
+   ```env
+   BOT_TOKEN=your_bot_token_from_botfather
+   SUPERUSER_USERNAME=your_telegram_username
+   SUPERUSER_USER_ID=your_user_id_from_userinfobot
+   ```
+
+   **Required Google Cloud Settings:**
+   Extract these values from your downloaded JSON credentials file:
+   ```env
+   PROJECT_ID=your-project-id
+   CLIENT_EMAIL=your-service-account@your-project-id.iam.gserviceaccount.com
+   CLIENT_ID=123456789012345678901
+   PRIVATE_KEY_ID=your-private-key-id
+   PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
+   [Copy the entire private key from the JSON file, including line breaks]
+   -----END PRIVATE KEY-----"
+   CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/...
+   ```
+
+   **Optional Settings:**
+   - Database configuration (defaults to SQLite)
+   - Webhook configuration (defaults to polling)
+   - Anti-flood protection settings
+
+### Step 5: Install Dependencies
+
+Choose one of the following methods:
+
+#### Option A: Direct Installation
+```bash
+pip install .
+```
+
+#### Option B: Development Installation
+```bash
+pip install -e ".[all]"
+```
+
+## Running the Bot
 
 You can run the project directly on your machine or in Docker.
 
-##### Option 1: Run Directly
+### Option 1: Run Directly
 
-1. Install the dependencies with `pip install .`.
-2. Run the bot with `python -m src.app.main`.
+1. Make sure all dependencies are installed:
+   ```bash
+   pip install .
+   ```
 
-##### Option 2: Run in Docker
+2. Run the bot:
+   ```bash
+   python -m src.app.main
+   ```
 
-To run this application in a Docker container, follow these steps:
+### Option 2: Run with Docker
 
-1. Build the Docker image with `docker build -t budget-telegram-bot .`.
-2. Run the Docker container with `docker run budget-telegram-bot`.
-1. Build the Docker image with `docker build -t budget-telegram-bot .`.
-2. Run the Docker container with `docker run budget-telegram-bot`.
+1. Build the Docker image:
+   ```bash
+   docker build -t budget-telegram-bot .
+   ```
+
+2. Run the Docker container:
+   ```bash
+   docker run --env-file .env budget-telegram-bot
+   ```
+
+### Communication Modes
+
+The bot supports two communication modes:
+
+#### Polling Mode (Default)
+- No additional setup required
+- Bot actively polls Telegram for updates
+- Works behind NAT/firewall
+- Set `COMMUNICATION_STRATEGY=polling` in `.env`
+
+#### Webhook Mode
+- Requires a public HTTPS endpoint
+- More efficient for high-traffic bots
+- Set `COMMUNICATION_STRATEGY=webhook` in `.env`
+
+For webhook mode, you can either:
+1. **Use a webhook URL** (e.g., from ngrok, Railway, Heroku):
+   ```env
+   WEBHOOK_URL=https://your-domain.com
+   ```
+
+2. **Use self-signed SSL certificates**:
+   ```bash
+   # Generate certificates
+   openssl genrsa -out webhook_pkey.pem 2048
+   openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem
+   ```
+   
+   Then configure:
+   ```env
+   HOST=your-public-ip
+   PORT=443
+   WEBHOOK_SSL_CERT=./webhook_cert.pem
+   WEBHOOK_SSL_PRIVKEY=./webhook_pkey.pem
+   ```
+
+## Database Configuration
+
+### SQLite (Default)
+The bot uses SQLite by default, creating a `local_database.db` file automatically. No additional configuration needed.
+
+### PostgreSQL (Production)
+For production environments, configure PostgreSQL:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=budget_bot
+DB_PASSWORD=your_secure_password
+DB_NAME=budget_bot_db
+```
+
+The bot will automatically create the necessary tables on first run.
+
+## Usage
+
+1. Start a conversation with your bot on Telegram
+2. Use commands to interact with your budget:
+   - Add transactions
+   - View spending summaries
+   - Manage categories
+   - Get budget reports
+
+The bot will automatically sync all data with your Google Sheets.
+
+## Troubleshooting
+
+### Common Issues
+
+#### Bot Not Responding
+1. Check that `BOT_TOKEN` is correctly set in `.env`
+2. Verify the bot token format: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`
+3. Ensure the bot is not running elsewhere
+4. Check the logs for error messages
+
+#### Google Sheets Access Denied
+1. Verify all Google Cloud credentials are correctly set
+2. Ensure the Google Sheets and Drive APIs are enabled
+3. Check that you've shared your Google Sheet with the service account email
+4. Verify the service account has the necessary permissions
+
+#### Database Connection Issues
+1. If using PostgreSQL, check connection parameters
+2. Verify the database exists and is accessible
+3. For SQLite, ensure write permissions in the directory
+
+#### Permission Denied Errors
+1. Check that `SUPERUSER_USER_ID` matches your Telegram user ID
+2. Message [@userinfobot](https://t.me/userinfobot) to confirm your user ID
+
+### Getting Help
+
+If you encounter issues:
+1. Check the logs for detailed error messages
+2. Verify all environment variables are correctly set
+3. Ensure all prerequisites are installed
+4. Check the [Issues page](https://github.com/konverner/budget-telegram-bot/issues) for similar problems
+
+### Debug Mode
+
+To enable debug logging, set the environment to development:
+```env
+ENVIRONMENT=local
+```
+
+This will provide more detailed logs to help diagnose issues.
 

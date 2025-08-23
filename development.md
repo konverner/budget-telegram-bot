@@ -1,57 +1,422 @@
-# Budget Telegram Bot
+# Budget Telegram Bot - Development Guide
 
 ## Overview
 
-This is a Telegram Bot used as a interface for budgeting with Google Sheets.
+This is a Telegram Bot that provides an interface for budgeting with Google Sheets. The bot allows users to easily record and manage financial transactions through Telegram, with automatic synchronization to Google Sheets.
+
+## Development Setup
+
+### Prerequisites
+
+- Python 3.9 or higher
+- Git
+- A Telegram account for testing
+- Google Cloud Platform account
+- Code editor (VS Code recommended)
+
+### Initial Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/konverner/budget-telegram-bot.git
+   cd budget-telegram-bot
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install development dependencies**:
+   ```bash
+   pip install -e ".[all]"
+   ```
+
+4. **Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Install pre-commit hooks** (optional but recommended):
+   ```bash
+   pre-commit install
+   ```
+
+### Development Tools
+
+The project includes several development tools configured in `pyproject.toml`:
+
+- **pytest**: Testing framework
+- **mypy**: Static type checking
+- **ruff**: Linting and code formatting
+- **pre-commit**: Git hooks for code quality
+- **mkdocs**: Documentation generation
+
+### Running Development Tools
+
+```bash
+# Run tests
+pytest
+
+# Type checking
+mypy src/
+
+# Linting and formatting
+ruff check src/
+ruff format src/
+
+# Generate documentation
+mkdocs serve
+```
 
 
-## Structure
+## Project Architecture
 
-The project is based on this template https://github.com/konverner/telegram-bot. 
+### High-Level Structure
 
-The project is composed of features. Each feature is defined with:
+The project is based on a modular architecture with clear separation of concerns. It follows the template from https://github.com/konverner/telegram-bot.
 
-- Data models: They represent entities in the database.
+```
+src/
+├── app/
+│   ├── auth/           # User authentication and authorization
+│   ├── budget/         # Core budget management features
+│   ├── database/       # Database models and operations
+│   ├── language/       # Multi-language support
+│   ├── middleware/     # Bot middleware components
+│   ├── plugins/        # External service integrations
+│   │   └── google_sheets/  # Google Sheets API integration
+│   ├── config.py       # Application configuration
+│   └── main.py         # Application entry point
+tests/                  # Test files
+```
 
-- Service: It performs business logic with the database.
+### Feature-Based Organization
 
-- Config: It is a YAML file that keeps changeable values like strings and parameters of the feature.
+Each feature is organized with the following components:
 
-- Handlers: They listen to Telegram actions, similar to routes in classic API architecture.
+- **Data Models**: SQLAlchemy models representing database entities
+- **Services**: Business logic and database operations
+- **Config**: YAML files with configurable parameters and strings
+- **Handlers**: Telegram message/callback handlers (similar to API routes)
+- **Markup**: Functions for generating Telegram UI elements (keyboards, buttons)
 
-- Markup: It defines functions for generating UI elements.
+### Core Components
 
-### Core Features
+#### 1. Configuration System
+- **File**: `src/app/config.py`
+- Uses Pydantic Settings for environment variable management
+- Supports multiple environments (local, staging, production)
+- Automatic validation and type checking
 
-### Details
+#### 2. Database Layer
+- **File**: `src/app/database/core.py`
+- SQLAlchemy ORM with automatic table creation
+- Support for both SQLite (development) and PostgreSQL (production)
+- Session management with proper cleanup
+
+#### 3. Middleware System
+- **Anti-flood Protection**: Rate limiting to prevent spam
+- **Database Middleware**: Automatic session injection
+- **User Middleware**: User creation and authentication
+- **State Management**: Conversation state tracking
+
+#### 4. Plugin System
+- **Google Sheets Integration**: Automatic data synchronization
+- **Extensible Architecture**: Easy to add new external services
+
+### Key Features Implemented
+
+#### Budget Management
+- Transaction recording and categorization
+- Expense and income tracking
+- Category management
+- Reporting and analytics
+
+#### User Management
+- User registration and authentication
+- Role-based access control
+- Superuser privileges
+- User blocking/unblocking
+
+#### Google Sheets Integration
+- Automatic spreadsheet creation
+- Real-time data synchronization
+- Configurable sheet structure
+- Error handling and retry logic
+
+## Communication Strategies
 
 ### Webhook vs Polling
 
-We can run a bot via API polling or via Webhook. See the difference:
+The bot supports two communication modes with Telegram:
 
-| Feature |	Polling |	Webhook |
-| - | - | - |
-| Initiation |	Client-initiated (we) |	Server-initiated (telegram) |
-| Data Flow |	Client pulls data from server |	Server pushes data to client |
-| Resource Usage |	Can be inefficient (many empty calls)	| Efficient (only sends data when an event occurs) |
-| Use Case |	Need for quick response; large data processing | Quick response; small data processing |
-| Public IP | No public IP is needed | HTTPS server is needed |
+| Feature | Polling | Webhook |
+|---------|---------|---------|
+| **Initiation** | Client-initiated (our bot) | Server-initiated (Telegram) |
+| **Data Flow** | Client pulls data from server | Server pushes data to client |
+| **Resource Usage** | Can be inefficient (many empty calls) | Efficient (only when events occur) |
+| **Use Case** | Development, simple deployments | Production, high-traffic bots |
+| **Public IP** | Not required | HTTPS server required |
+| **Setup Complexity** | Simple | More complex |
 
-### Webhook
+### Webhook Configuration
 
-To set webhook, you need to provide in `.env` one of the following:
+To use webhook mode, configure one of the following in `.env`:
 
-- `WEBHOOK_URL` : https address
-- `HOST`: Public IP of host machine; `PORT`: 443, 80 or 8443; `WEBHOOK_SSL_CERT`, `WEBHOOK_SSL_PRIVKEY`.
-
-One can generate self-signed SSL certificate:
-
+#### Option 1: External Webhook URL
+```env
+WEBHOOK_URL=https://your-domain.com
 ```
+
+#### Option 2: Self-Hosted with SSL
+```env
+HOST=your-public-ip
+PORT=443  # Must be 443, 80, or 8443
+WEBHOOK_SSL_CERT=./webhook_cert.pem
+WEBHOOK_SSL_PRIVKEY=./webhook_pkey.pem
+```
+
+Generate self-signed SSL certificates:
+```bash
 openssl genrsa -out webhook_pkey.pem 2048
 openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem
 ```
-When asked for "Common Name (e.g. server FQDN or YOUR name)" you should reply with the same value in you put in `HOST`
 
-Set environment variable `COMMUNICATION_STRATEGY` in `.env` to values `polling` or `webhook`.
+⚠️ **Important**: When prompted for "Common Name", use the same value as your `HOST`.
+
+Set the communication strategy:
+```env
+COMMUNICATION_STRATEGY=webhook  # or "polling"
+```
+
+## Development Workflow
+
+### 1. Environment Setup
+
+Create a development environment file:
+```bash
+cp .env.example .env.dev
+```
+
+Configure for development:
+```env
+ENVIRONMENT=local
+BOT_TOKEN=your_dev_bot_token
+COMMUNICATION_STRATEGY=polling
+# Use SQLite for development (no DB_* variables needed)
+```
+
+### 2. Running in Development Mode
+
+```bash
+# Activate virtual environment
+source venv/bin/activate
+
+# Run the bot
+python -m src.app.main
+```
+
+The bot will:
+- Use SQLite database (`local_database.db`)
+- Enable debug logging
+- Auto-reload on code changes (if using a development server)
+
+### 3. Code Quality and Testing
+
+#### Running Tests
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src/
+
+# Run specific test file
+pytest tests/test_app.py
+```
+
+#### Code Linting and Formatting
+```bash
+# Check code style
+ruff check src/
+
+# Format code
+ruff format src/
+
+# Type checking
+mypy src/
+```
+
+#### Pre-commit Hooks
+The project uses pre-commit hooks to ensure code quality:
+```bash
+# Install hooks
+pre-commit install
+
+# Run manually
+pre-commit run --all-files
+```
+
+### 4. Database Development
+
+#### Migrations
+The project uses SQLAlchemy with automatic table creation:
+- Tables are created automatically on first run
+- Schema changes require manual migration planning
+- Use `drop_tables()` and `create_tables()` for development resets
+
+#### Working with Different Databases
+
+**SQLite (Development)**:
+- Automatically created as `local_database.db`
+- No additional setup required
+- Good for testing and development
+
+**PostgreSQL (Production)**:
+```bash
+# Create database
+createdb budget_bot_db
+
+# Configure in .env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=budget_bot
+DB_PASSWORD=secure_password
+DB_NAME=budget_bot_db
+```
+
+### 5. Google Sheets Development
+
+For development, create a separate Google Sheets document:
+1. Create a test Google Cloud project
+2. Set up a development service account
+3. Use a separate `.env.dev` configuration
+4. Create test sheets for development data
+
+### 6. Debugging
+
+#### Logging
+The application uses Python's logging module:
+```python
+import logging
+logger = logging.getLogger(__name__)
+
+# Different log levels
+logger.debug("Debug information")
+logger.info("General information")
+logger.warning("Warning message")
+logger.error("Error occurred")
+logger.critical("Critical error")
+```
+
+#### Common Debug Scenarios
+
+**Bot not receiving messages**:
+1. Check bot token format
+2. Verify bot is not running elsewhere
+3. Check network connectivity
+4. Review Telegram Bot API status
+
+**Google Sheets API errors**:
+1. Verify service account credentials
+2. Check API quotas and limits
+3. Ensure proper sheet sharing
+4. Review API enable status
+
+**Database issues**:
+1. Check connection parameters
+2. Verify database permissions
+3. Review table creation logs
+4. Check for schema conflicts
+
+### 7. Adding New Features
+
+To add a new feature:
+
+1. **Create feature directory**:
+   ```
+   src/app/new_feature/
+   ├── __init__.py
+   ├── models.py       # Database models
+   ├── services.py     # Business logic
+   ├── handlers.py     # Telegram handlers
+   ├── markup.py       # UI elements
+   └── config.yaml     # Feature configuration
+   ```
+
+2. **Register handlers**:
+   ```python
+   # In src/app/main.py
+   from .new_feature.handlers import register_handlers as new_feature_handlers
+   
+   handlers = [
+       language_handlers,
+       budget_handlers,
+       new_feature_handlers  # Add here
+   ]
+   ```
+
+3. **Add database models**:
+   ```python
+   # In new_feature/models.py
+   from sqlalchemy import Column, Integer, String
+   from ..auth.models import Base
+   
+   class NewFeatureModel(Base):
+       __tablename__ = "new_feature"
+       
+       id = Column(Integer, primary_key=True)
+       name = Column(String)
+   ```
+
+4. **Create tests**:
+   ```python
+   # In tests/test_new_feature.py
+   def test_new_feature():
+       assert True
+   ```
+
+### 8. Deployment
+
+#### Production Checklist
+
+- [ ] Set `ENVIRONMENT=production`
+- [ ] Use PostgreSQL database
+- [ ] Configure webhook (recommended)
+- [ ] Set up proper SSL certificates
+- [ ] Enable monitoring and logging
+- [ ] Set secure `SECRET_KEY`
+- [ ] Configure backup strategy
+- [ ] Set up monitoring for Google Sheets API quotas
+
+#### Environment-Specific Configuration
+
+**Local Development**:
+```env
+ENVIRONMENT=local
+COMMUNICATION_STRATEGY=polling
+# SQLite database (default)
+```
+
+**Staging**:
+```env
+ENVIRONMENT=staging
+COMMUNICATION_STRATEGY=webhook
+DB_HOST=staging-db.example.com
+WEBHOOK_URL=https://staging-bot.example.com
+```
+
+**Production**:
+```env
+ENVIRONMENT=production
+COMMUNICATION_STRATEGY=webhook
+DB_HOST=prod-db.example.com
+WEBHOOK_URL=https://bot.example.com
+```
+
+This development guide provides the foundation for contributing to and extending the Budget Telegram Bot project.
 
 
