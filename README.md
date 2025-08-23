@@ -1,92 +1,66 @@
 ## Budget Telegram Bot
 
-This is a template for creating a Telegram bot using Python. It uses the `pyTelegramBotAPI` library for interaction with the Telegram Bot API and SQLAlchemy for database interactions. The bot logs messages, saves user details, and can be deployed using Docker.
+This is a Telegram Bot used as a interface for budgeting with Google Sheets.
 
-
-## Structure
-
-The project is composed of features. Each feature is defined with:
-
-- Data models: They represent entities in the database.
-
-- Service: It performs business logic with the database.
-
-- Config: It is a YAML file that keeps changeable values like strings and parameters of the feature.
-
-- Handlers: They listen to Telegram actions, similar to routes in classic API architecture.
-
-- Markup: It defines functions for generating UI elements.
-
-### Core Features
-
-Core features are based completely on Telegram, i.e., without external calls. Core features implement a user-item pattern. Users can:
-
-- View options via the main menu using the `/menu` command: [src/app/menu](src/app/menu)
-
-- Create, edit, and delete items (notes) via the main menu. Items are stored in the database table `items`: [src/app/items](src/app/items)
-
-- Change language: [src/app/language](src/app/language)
-
-User information is stored in the `users` database table.
-
-### Admin Features
-
-Admin features allow performing operations on users. The admin menu is available for users with the `admin` role and can be invoked with the `/admin` command. It includes the following functions:
-
-- Send public messages to all users of the bot: [src/app/public_message](src/app/public_message)
-
-- Grant admin rights to other users, block users from using the bot: [src/app/users](src/app/users)
-
-- Export database tables of the bot: [src/app/admin](src/app/admin)
+The Google Sheets are often used for budgeting purposes ([1](https://www.reddit.com/r/personalfinance/comments/c4mzfe/i_made_a_google_sheet_to_replace_quicken/)) but the problem is to enter transactions is not always comfortable, espacially via mobile on the go. This bot allows you to enter transactions via Telegram messanger.
 
 ## Launch
 
-You can run the project directly on your machine or in Docker.
+### Google Sheets
 
-### Webhook vs Polling
+By-default the bot is looking for a sheet named "budget" with two worksheets "transactions" and "categories". You can see example here:
 
-We can run a bot via API polling or via Webhook. See the difference:
+To allow communication between google sheets you need to set a service account on Goolge Cloud:
 
-| Feature |	Polling |	Webhook |
-| - | - | - |
-| Initiation |	Client-initiated (we) |	Server-initiated (telegram) |
-| Data Flow |	Client pulls data from server |	Server pushes data to client |
-| Resource Usage |	Can be inefficient (many empty calls)	| Efficient (only sends data when an event occurs) |
-| Use Case |	Need for quick response; large data processing | Quick response; small data processing |
-| Public IP | No public IP is needed | HTTPS server is needed |
+#### 1. Create a Google Cloud project
 
-### Webhook
+To access Google products via API, you must have a developer project on Google Workspace
 
-To set webhook, you need to provide in `.env` one of the following:
+https://developers.google.com/workspace/guides/create-project
 
-- `WEBHOOK_URL` : https address
-- `HOST`: Public IP of host machine; `PORT`: 443, 80 or 8443; `WEBHOOK_SSL_CERT`, `WEBHOOK_SSL_PRIVKEY`.
+#### 2. Create a service account
 
-One can generate self-signed SSL certificate:
+You cannot use your personal account for API use, you need to create a service account specifically for the bot:
 
-```
-openssl genrsa -out webhook_pkey.pem 2048
-openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem
-```
-When asked for "Common Name (e.g. server FQDN or YOUR name)" you should reply with the same value in you put in `HOST`
+<img width="666" height="569" alt="Screenshot From 2025-08-15 22-00-49" src="https://github.com/user-attachments/assets/2900879e-5128-4037-8fc4-78b2a95b2191" />
+  
+#### 3. Enable APIs for the service account
 
-Set environment variable `COMMUNICATION_STRATEGY` in `.env` to values `polling` or `webhook`.
+For the created service account, we need to enable Google Sheet and Google Drive APIs: https://developers.google.com/workspace/guides/enable-apis
 
-### Setup
+#### 4. Create credentials
+
+For authorization and authofication of service account, you must create credentials and save them as a JSON file.
+
+<img width="762" height="649" alt="Screenshot From 2025-08-15 22-01-37" src="https://github.com/user-attachments/assets/9192f484-4121-4411-a142-ccadee6ef533" />
+
+
+### Telegram Bot
+
+#### Create bot account
+
+You need to create a bot account and obtain a token via BotFather: https://core.telegram.org/bots/tutorial#obtain-your-bot-token
+
+#### Setup
 
 1. Clone this repository.
 2. Enter values in `.env.example` and rename it to `.env`.
 
-### Run Directly
+#### Run 
+
+You can run the project directly on your machine or in Docker.
+
+##### Option 1: Run Directly
 
 1. Install the dependencies with `pip install .`.
 2. Run the bot with `python -m src.app.main`.
 
-### Run in Docker
+##### Option 2: Run in Docker
 
 To run this application in a Docker container, follow these steps:
 
-1. Build the Docker image with `docker build -t telegram-bot .`.
-2. Run the Docker container with `docker run telegram-bot`.
-1. Build the Docker image with `docker build -t telegram-bot .`.
-2. Run the Docker container with `docker run telegram-bot`.
+1. Build the Docker image with `docker build -t budget-telegram-bot .`.
+2. Run the Docker container with `docker run budget-telegram-bot`.
+1. Build the Docker image with `docker build -t budget-telegram-bot .`.
+2. Run the Docker container with `docker run budget-telegram-bot`.
+
