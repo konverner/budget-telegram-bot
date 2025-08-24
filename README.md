@@ -11,6 +11,7 @@ While Google Sheets are commonly used for budgeting purposes ([reference](https:
 - Python 3.9 or higher
 - A Telegram account
 - Google Cloud Platform account
+- **No** public IP is needed, for example, you can run it on your PC as a background job.
 
 ### Step 1: Clone the Repository
 
@@ -163,7 +164,3 @@ You can run the project directly on your machine or in Docker.
    - Get budget reports
 
 The bot will automatically sync all data with your Google Sheets.
-```
-
-This will provide more detailed logs to help diagnose issues.
-
