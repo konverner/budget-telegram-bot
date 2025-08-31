@@ -4,6 +4,9 @@ This is a Telegram Bot that provides a convenient interface for budgeting with G
 
 While Google Sheets are commonly used for budgeting purposes ([reference](https://www.reddit.com/r/personalfinance/comments/c4mzfe/i_made_a_google_sheet_to_replace_quicken/)), entering transactions can be uncomfortable, especially on mobile devices. This bot solves that problem by allowing you to easily record transactions via Telegram messages.
 
+<img width="522" height="606" alt="image" src="https://github.com/user-attachments/assets/b5466f49-249a-4f80-bc2f-d410028d0df6" />
+
+
 ## Setup and Installation
 
 ### Prerequisites
