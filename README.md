@@ -28,13 +28,15 @@ cd budget-telegram-bot
 2. Create two worksheets within the sheet:
    - "transactions" - for recording income and expenses
    - "categories" - for organizing transaction categories
-3. **Important**: Share the sheet with your service account email (you'll get this in step 2.4)
+3. **Important**: Share Editor access the sheet with your service account email (you'll get this in step 2.4)
 
 Example sheet structure:
 - **transactions worksheet**: Category	| Date |	Amount | Comment
 - **categories worksheet**: Name |	Description
 
 [Link to template](https://docs.google.com/spreadsheets/d/1ZVs01UAhXfcVZzK2blTXyyFx1nu15XYd4vKt4zI27xY/edit?usp=sharing)
+
+You can configure the names in this file: [src/app/budget/config.yaml](src/app/budget/config.yaml)
 
 #### 2.2. Create a Google Cloud Project
 
