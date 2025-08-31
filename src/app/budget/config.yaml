@@ -3,7 +3,7 @@ app:
   categories_worksheet: "categories"
   transactions_worksheet: "transactions"
   share_emails:
-    - "konst.verner@gmail.com"
+    - "example@gmail.com"
 strings:
   en:
     # Transaction flow
