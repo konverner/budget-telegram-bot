@@ -1,5 +1,5 @@
 app:
-  sheet_name: "Budget"
+  sheet_name: "budget"
   categories_worksheet: "categories"
   transactions_worksheet: "transactions"
   share_emails:
