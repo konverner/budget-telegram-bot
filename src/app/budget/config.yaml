@@ -1,9 +1,7 @@
 app:
   sheet_name: "budget"
-  categories_worksheet: "categories"
-  transactions_worksheet: "transactions"
-  share_emails:
-    - "example@gmail.com"
+  categories_worksheet_name: "categories"
+  transactions_worksheet_name: "transactions"
 strings:
   en:
     # Transaction flow
