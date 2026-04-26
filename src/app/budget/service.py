@@ -4,6 +4,7 @@ from pathlib import Path
 
 from omegaconf import OmegaConf
 
+from ..config import settings
 from ..plugins.google_sheets.client import GoogleSheetsClient
 
 # Load configuration
@@ -22,10 +23,12 @@ class BudgetService:
 
     def __init__(self):
         """Initialize the budget service with Google Sheets client"""
-        self.google_sheets = GoogleSheetsClient(share_emails=config.app.share_emails)
+        self.google_sheets = GoogleSheetsClient(
+            share_emails=settings.SHARE_EMAILS.split(",") if settings.SHARE_EMAILS else []
+        )
         self.sheet_name = config.app.sheet_name
-        self.categories_worksheet = config.app.categories_worksheet
-        self.transactions_worksheet = config.app.transactions_worksheet
+        self.categories_worksheet = config.app.categories_worksheet_name
+        self.transactions_worksheet = config.app.transactions_worksheet_name
         self._categories_cache = None
 
     def _get_or_create_sheet(self):
