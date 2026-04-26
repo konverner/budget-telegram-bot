@@ -50,7 +50,7 @@ class Settings(BaseSettings):
             self.FRONTEND_HOST
         ]
 
-    PROJECT_NAME: str = "Telegram Bot"
+    PROJECT_NAME: str = "Budget Telegram Bot"
     PROJECT_VERSION: str = "0.1.0"
 
     # Telegram Bot Configuration
@@ -76,7 +76,10 @@ class Settings(BaseSettings):
     DB_NAME: str = ""
     
     # Plugins Configuration
-    USE_PLUGINS: bool = False  # Enable plugins
+    USE_PLUGINS: bool = True  # Enable plugins
+    
+    # Google Sheets Plugin Configuration
+    SHARE_EMAILS: str = ""  # Comma-separated list of emails to share the Google Sheet with
 
     @computed_field  # type: ignore[prop-decorator]
     @property
