@@ -99,6 +99,11 @@ Enable the Google Sheets and Google Drive APIs for your project: https://develop
    SUPERUSER_USER_ID=your_user_id_from_userinfobot
    ```
 
+   **Required Google Sheets Settings:**
+   ```env
+   SHARE_EMAILS="example.one@gmail.com,example.two@gmail.com"  # Comma-separated list of emails to share the Google Sheet with
+   ```
+
    **Required Google Cloud Settings:**
    Extract these values from your downloaded JSON credentials file:
    ```env
