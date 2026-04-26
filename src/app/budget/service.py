@@ -30,45 +30,68 @@ class BudgetService:
         self.categories_worksheet = config.app.categories_worksheet_name
         self.transactions_worksheet = config.app.transactions_worksheet_name
         self._categories_cache = None
+        self._worksheets_verified = set()
+        self._sheet = None
 
     def _get_or_create_sheet(self):
         """Get or create the budget sheet"""
+        if self._sheet:
+            return self._sheet
+
         try:
-            return self.google_sheets.get_sheet(self.sheet_name)
+            self._sheet = self.google_sheets.get_sheet(self.sheet_name)
+            return self._sheet
         except Exception:
             logger.info(f"Sheet {self.sheet_name} not found, creating new one")
-            return self.google_sheets.create_sheet(self.sheet_name)
+            self._sheet = self.google_sheets.create_sheet(self.sheet_name)
+            return self._sheet
 
     def _ensure_categories_worksheet(self, sheet):
         """Ensure categories worksheet exists with proper headers"""
+        if self.categories_worksheet in self._worksheets_verified:
+            return
+
         try:
-            self.google_sheets.create_worksheet(sheet, self.categories_worksheet)
-            # Add headers and sample data
-            headers = ["Category"]
-            sample_categories = [
-                "Housing", "Housing.Rent", "Housing.Supplies", "Housing.Electricity",
-                "Housing.Internet", "Housing.Cell", "Transportation", "Food",
-                "Food.Groceries", "Food.Restaurants", "Health", "Health.Hair",
-                "Health.Medical", "Miscellaneous", "Travel", "Travel.Food",
-                "Travel.Accommodation", "Travel.Transportation", "Travel.Entertainment",
-                "Travel.Miscellaneous", "Salary", "Freelance"
-            ]
-            self.google_sheets.add_row(sheet, self.categories_worksheet, headers)
-            for category in sample_categories:
-                self.google_sheets.add_row(sheet, self.categories_worksheet, [category])
-            logger.info("Categories worksheet created with sample data")
+            # Check if worksheet already exists
+            existing_worksheets = self.google_sheets.get_table_names(sheet)
+            if self.categories_worksheet not in existing_worksheets:
+                self.google_sheets.create_worksheet(sheet, self.categories_worksheet)
+                # Add headers and sample data
+                headers = ["Category"]
+                sample_categories = [
+                    "Housing", "Housing.Rent", "Housing.Supplies", "Housing.Electricity",
+                    "Housing.Internet", "Housing.Cell", "Transportation", "Food",
+                    "Food.Groceries", "Food.Restaurants", "Health", "Health.Hair",
+                    "Health.Medical", "Miscellaneous", "Travel", "Travel.Food",
+                    "Travel.Accommodation", "Travel.Transportation", "Travel.Entertainment",
+                    "Travel.Miscellaneous", "Salary", "Freelance"
+                ]
+                self.google_sheets.add_row(sheet, self.categories_worksheet, headers)
+                for category in sample_categories:
+                    self.google_sheets.add_row(sheet, self.categories_worksheet, [category])
+                logger.info("Categories worksheet created with sample data")
+            
+            self._worksheets_verified.add(self.categories_worksheet)
         except Exception as e:
-            logger.info(f"Categories worksheet already exists: {e}")
+            logger.error(f"Error ensuring categories worksheet: {e}")
 
     def _ensure_transactions_worksheet(self, sheet):
         """Ensure transactions worksheet exists with proper headers"""
+        if self.transactions_worksheet in self._worksheets_verified:
+            return
+
         try:
-            self.google_sheets.create_worksheet(sheet, self.transactions_worksheet)
-            headers = ["Date", "Category", "Amount", "Comment"]
-            self.google_sheets.add_row(sheet, self.transactions_worksheet, headers)
-            logger.info("Transactions worksheet created")
+            # Check if worksheet already exists
+            existing_worksheets = self.google_sheets.get_table_names(sheet)
+            if self.transactions_worksheet not in existing_worksheets:
+                self.google_sheets.create_worksheet(sheet, self.transactions_worksheet)
+                headers = ["Date", "Category", "Amount", "Comment"]
+                self.google_sheets.add_row(sheet, self.transactions_worksheet, headers)
+                logger.info("Transactions worksheet created")
+            
+            self._worksheets_verified.add(self.transactions_worksheet)
         except Exception as e:
-            logger.info(f"Transactions worksheet already exists: {e}")
+            logger.error(f"Error ensuring transactions worksheet: {e}")
 
     def _parse_categories_from_sheet(self, sheet) -> dict[str, list[dict]]:
         """Parse categories and subcategories from Google Sheet"""
@@ -123,6 +146,7 @@ class BudgetService:
     def _clear_cache(self):
         """Clear the categories cache"""
         self._categories_cache = None
+        self._worksheets_verified.clear()
 
     def get_categories(self) -> list[dict]:
         """Get main budget categories"""
